@@ -6,13 +6,12 @@ Item {
     property int pieceIndex: 0
     property real correctX: 0
     property real correctY: 0
-    property real pieceWidth: 80
-    property real pieceHeight: 80
+    property real pieceSize: 100  // 改为正方形大小
     property bool isPlaced: false
     property bool isDragging: false
 
-    width: pieceWidth
-    height: pieceHeight
+    width: pieceSize
+    height: pieceSize
 
     // 为每个块定义独特的颜色
     property var colorList: [
@@ -40,8 +39,8 @@ Item {
             var ctx = getContext("2d");
             var w = width;
             var h = height;
-            var tabRadius = 16;  // 凹凸圆形的半径
-            var tabDepth = 10;   // 凹凸的深度
+            var tabWidth = 28;   // 凹凸宽度（更大）
+            var tabHeight = 20;  // 凹凸高度（更明显）
 
             // 清空
             ctx.clearRect(0, 0, w, h);
@@ -55,14 +54,18 @@ Item {
                 // 平边
                 ctx.lineTo(w, 0);
             } else if (edgeTypes[0] === 1) {
-                // 凸起（圆形突出）
-                ctx.lineTo(w / 2 - tabRadius, 0);
-                ctx.arcTo(w / 2, -tabDepth, w / 2 + tabRadius, 0, tabRadius);
+                // 凸起（向上突出）
+                var midX = w / 2;
+                ctx.lineTo(midX - tabWidth / 2, 0);
+                // 绘制凸起的曲线
+                ctx.quadraticCurveTo(midX, -tabHeight, midX + tabWidth / 2, 0);
                 ctx.lineTo(w, 0);
             } else {
-                // 凹陷（圆形凹入）
-                ctx.lineTo(w / 2 - tabRadius, 0);
-                ctx.arcTo(w / 2, tabDepth, w / 2 + tabRadius, 0, tabRadius);
+                // 凹陷（向下凹入）
+                var midX = w / 2;
+                ctx.lineTo(midX - tabWidth / 2, 0);
+                // 绘制凹陷的曲线
+                ctx.quadraticCurveTo(midX, tabHeight, midX + tabWidth / 2, 0);
                 ctx.lineTo(w, 0);
             }
 
@@ -71,14 +74,16 @@ Item {
                 // 平边
                 ctx.lineTo(w, h);
             } else if (edgeTypes[1] === 1) {
-                // 凸起
-                ctx.lineTo(w, h / 2 - tabRadius);
-                ctx.arcTo(w + tabDepth, h / 2, w, h / 2 + tabRadius, tabRadius);
+                // 凸起（向右突出）
+                var midY = h / 2;
+                ctx.lineTo(w, midY - tabWidth / 2);
+                ctx.quadraticCurveTo(w + tabHeight, midY, w, midY + tabWidth / 2);
                 ctx.lineTo(w, h);
             } else {
-                // 凹陷
-                ctx.lineTo(w, h / 2 - tabRadius);
-                ctx.arcTo(w - tabDepth, h / 2, w, h / 2 + tabRadius, tabRadius);
+                // 凹陷（向左凹入）
+                var midY = h / 2;
+                ctx.lineTo(w, midY - tabWidth / 2);
+                ctx.quadraticCurveTo(w - tabHeight, midY, w, midY + tabWidth / 2);
                 ctx.lineTo(w, h);
             }
 
@@ -87,14 +92,16 @@ Item {
                 // 平边
                 ctx.lineTo(0, h);
             } else if (edgeTypes[2] === 1) {
-                // 凸起
-                ctx.lineTo(w / 2 + tabRadius, h);
-                ctx.arcTo(w / 2, h + tabDepth, w / 2 - tabRadius, h, tabRadius);
+                // 凸起（向下突出）
+                var midX = w / 2;
+                ctx.lineTo(midX + tabWidth / 2, h);
+                ctx.quadraticCurveTo(midX, h + tabHeight, midX - tabWidth / 2, h);
                 ctx.lineTo(0, h);
             } else {
-                // 凹陷
-                ctx.lineTo(w / 2 + tabRadius, h);
-                ctx.arcTo(w / 2, h - tabDepth, w / 2 - tabRadius, h, tabRadius);
+                // 凹陷（向上凹入）
+                var midX = w / 2;
+                ctx.lineTo(midX + tabWidth / 2, h);
+                ctx.quadraticCurveTo(midX, h - tabHeight, midX - tabWidth / 2, h);
                 ctx.lineTo(0, h);
             }
 
@@ -103,14 +110,16 @@ Item {
                 // 平边
                 ctx.lineTo(0, 0);
             } else if (edgeTypes[3] === 1) {
-                // 凸起
-                ctx.lineTo(0, h / 2 + tabRadius);
-                ctx.arcTo(-tabDepth, h / 2, 0, h / 2 - tabRadius, tabRadius);
+                // 凸起（向左突出）
+                var midY = h / 2;
+                ctx.lineTo(0, midY + tabWidth / 2);
+                ctx.quadraticCurveTo(-tabHeight, midY, 0, midY - tabWidth / 2);
                 ctx.lineTo(0, 0);
             } else {
-                // 凹陷
-                ctx.lineTo(0, h / 2 + tabRadius);
-                ctx.arcTo(tabDepth, h / 2, 0, h / 2 - tabRadius, tabRadius);
+                // 凹陷（向右凹入）
+                var midY = h / 2;
+                ctx.lineTo(0, midY + tabWidth / 2);
+                ctx.quadraticCurveTo(tabHeight, midY, 0, midY - tabWidth / 2);
                 ctx.lineTo(0, 0);
             }
 
@@ -122,7 +131,7 @@ Item {
 
             // 白色描边
             ctx.strokeStyle = "#FFFFFF";
-            ctx.lineWidth = 3;
+            ctx.lineWidth = 2;
             ctx.stroke();
         }
     }
