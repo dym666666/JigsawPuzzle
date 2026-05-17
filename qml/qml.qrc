@@ -1,7 +1,7 @@
 <RCC>
     <qresource prefix="/">
-        <file>qml/main.qml</file>
-        <file>qml/PuzzleGame.qml</file>
-        <file>qml/PuzzlePiece.qml</file>
+        <file>main.qml</file>
+        <file>PuzzleGame.qml</file>
+        <file>PuzzlePiece.qml</file>
     </qresource>
 </RCC>
