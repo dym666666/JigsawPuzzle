@@ -1,6 +1,6 @@
 import QtQuick
 
-Rectangle {
+Item {
     id: piece
 
     property int pieceIndex: 0
@@ -13,81 +13,115 @@ Rectangle {
 
     width: pieceWidth
     height: pieceHeight
-    color: "#3498db"
-    radius: 4
-    border.color: "#2980b9"
-    border.width: 2
 
-    // 生成渐变背景
-    gradient: Gradient {
-        GradientStop { position: 0.0; color: isPlaced ? "#2ecc71" : "#3498db" }
-        GradientStop { position: 1.0; color: isPlaced ? "#27ae60" : "#2980b9" }
-    }
+    // 生成随机的凹凸边类型 (0=平，1=凸，2=凹)
+    property var edgeTypes: [
+        (pieceIndex % 2 === 0) ? 0 : ((pieceIndex % 3 === 0) ? 1 : 2),  // 上
+        (pieceIndex % 3 === 0) ? 0 : ((pieceIndex % 5 === 0) ? 1 : 2),  // 右
+        (pieceIndex % 4 === 0) ? 0 : ((pieceIndex % 7 === 0) ? 1 : 2),  // 下
+        (pieceIndex % 5 === 0) ? 0 : ((pieceIndex % 2 === 0) ? 1 : 2)   // 左
+    ]
 
-    // 拼图块的凹凸形状装饰
+    // 用 Canvas 绘制拼图块的真实形状
     Canvas {
         id: shapeCanvas
         anchors.fill: parent
-        anchors.margins: 2
 
         onPaint: {
             var ctx = getContext("2d");
             var w = width;
             var h = height;
+            var tabSize = 12;  // 凹凸的大小
 
-            // 清空画布
+            // 清空
             ctx.clearRect(0, 0, w, h);
 
-            // 绘制凹凸纹理
-            ctx.strokeStyle = "rgba(255, 255, 255, 0.3)";
-            ctx.lineWidth = 1;
-            ctx.setLineDash([3, 3]);
+            // 开始绘制路径
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
 
-            // 在边缘绘制锯齿纹
-            var tabSize = Math.min(w, h) / 4;
-
-            // 顶部凸起
-            if (pieceIndex % 4 !== 0) {
-                ctx.beginPath();
-                ctx.moveTo(w / 2 - tabSize / 2, 0);
-                ctx.bezierCurveTo(w / 2 - tabSize / 4, -tabSize / 2, w / 2 + tabSize / 4, -tabSize / 2, w / 2 + tabSize / 2, 0);
-                ctx.stroke();
+            // 上边
+            if (edgeTypes[0] === 0) {
+                // 平边
+                ctx.lineTo(w, 0);
+            } else if (edgeTypes[0] === 1) {
+                // 凸起
+                ctx.lineTo(w / 2 - tabSize, 0);
+                ctx.bezierCurveTo(w / 2 - tabSize / 2, -tabSize, w / 2 + tabSize / 2, -tabSize, w / 2 + tabSize, 0);
+                ctx.lineTo(w, 0);
+            } else {
+                // 凹陷
+                ctx.lineTo(w / 2 - tabSize, 0);
+                ctx.bezierCurveTo(w / 2 - tabSize / 2, tabSize, w / 2 + tabSize / 2, tabSize, w / 2 + tabSize, 0);
+                ctx.lineTo(w, 0);
             }
 
-            // 右侧凹陷
-            if (pieceIndex % 3 !== 0) {
-                ctx.beginPath();
-                ctx.moveTo(w, h / 2 - tabSize / 2);
-                ctx.bezierCurveTo(w + tabSize / 2, h / 2 - tabSize / 4, w + tabSize / 2, h / 2 + tabSize / 4, w, h / 2 + tabSize / 2);
-                ctx.stroke();
+            // 右边
+            if (edgeTypes[1] === 0) {
+                // 平边
+                ctx.lineTo(w, h);
+            } else if (edgeTypes[1] === 1) {
+                // 凸起
+                ctx.lineTo(w, h / 2 - tabSize);
+                ctx.bezierCurveTo(w + tabSize, h / 2 - tabSize / 2, w + tabSize, h / 2 + tabSize / 2, w, h / 2 + tabSize);
+                ctx.lineTo(w, h);
+            } else {
+                // 凹陷
+                ctx.lineTo(w, h / 2 - tabSize);
+                ctx.bezierCurveTo(w - tabSize, h / 2 - tabSize / 2, w - tabSize, h / 2 + tabSize / 2, w, h / 2 + tabSize);
+                ctx.lineTo(w, h);
             }
 
-            // 底部凸起
-            if (pieceIndex % 5 !== 0) {
-                ctx.beginPath();
-                ctx.moveTo(w / 2 - tabSize / 2, h);
-                ctx.bezierCurveTo(w / 2 - tabSize / 4, h + tabSize / 2, w / 2 + tabSize / 4, h + tabSize / 2, w / 2 + tabSize / 2, h);
-                ctx.stroke();
+            // 下边
+            if (edgeTypes[2] === 0) {
+                // 平边
+                ctx.lineTo(0, h);
+            } else if (edgeTypes[2] === 1) {
+                // 凸起
+                ctx.lineTo(w / 2 + tabSize, h);
+                ctx.bezierCurveTo(w / 2 + tabSize / 2, h + tabSize, w / 2 - tabSize / 2, h + tabSize, w / 2 - tabSize, h);
+                ctx.lineTo(0, h);
+            } else {
+                // 凹陷
+                ctx.lineTo(w / 2 + tabSize, h);
+                ctx.bezierCurveTo(w / 2 + tabSize / 2, h - tabSize, w / 2 - tabSize / 2, h - tabSize, w / 2 - tabSize, h);
+                ctx.lineTo(0, h);
             }
 
-            // 左侧凹陷
-            if (pieceIndex % 2 !== 0) {
-                ctx.beginPath();
-                ctx.moveTo(0, h / 2 - tabSize / 2);
-                ctx.bezierCurveTo(-tabSize / 2, h / 2 - tabSize / 4, -tabSize / 2, h / 2 + tabSize / 4, 0, h / 2 + tabSize / 2);
-                ctx.stroke();
+            // 左边
+            if (edgeTypes[3] === 0) {
+                // 平边
+                ctx.lineTo(0, 0);
+            } else if (edgeTypes[3] === 1) {
+                // 凸起
+                ctx.lineTo(0, h / 2 + tabSize);
+                ctx.bezierCurveTo(-tabSize, h / 2 + tabSize / 2, -tabSize, h / 2 - tabSize / 2, 0, h / 2 - tabSize);
+                ctx.lineTo(0, 0);
+            } else {
+                // 凹陷
+                ctx.lineTo(0, h / 2 + tabSize);
+                ctx.bezierCurveTo(tabSize, h / 2 + tabSize / 2, tabSize, h / 2 - tabSize / 2, 0, h / 2 - tabSize);
+                ctx.lineTo(0, 0);
             }
+
+            ctx.closePath();
+
+            // 填充颜色
+            ctx.fillStyle = isPlaced ? "#2ecc71" : Qt.hsla((pieceIndex * 60) % 360, 0.7, 0.6, 1.0);
+            ctx.fill();
+
+            // 描边
+            ctx.strokeStyle = isPlaced ? "#27ae60" : "#2c3e50";
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // 在块的中心绘制编号
+            ctx.fillStyle = "#ffffff";
+            ctx.font = "bold 14px Arial";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.fillText((pieceIndex + 1).toString(), w / 2, h / 2);
         }
-    }
-
-    // 拼图块编号
-    Text {
-        anchors.centerIn: parent
-        text: pieceIndex + 1
-        font.pixelSize: 18
-        font.bold: true
-        color: "white"
-        z: 2
     }
 
     // 拖拽处理
@@ -99,12 +133,11 @@ Rectangle {
 
         onPressed: {
             isDragging = true;
-            piece.z = 100; // 置于顶层
+            piece.z = 100;
         }
 
         onReleased: {
             isDragging = false;
-            // 尝试将拼图块对齐到目标位置
             var parent_item = piece.parent;
             if (parent_item && parent_item.checkPieceAlignment) {
                 parent_item.checkPieceAlignment(piece);
@@ -116,7 +149,7 @@ Rectangle {
 
         onEntered: {
             if (!isPlaced) {
-                piece.scale = 1.1;
+                piece.scale = 1.15;
             }
         }
 
@@ -142,7 +175,7 @@ Rectangle {
         NumberAnimation { duration: 300 }
     }
 
-    // 放置时的发光效果
+    // 已放置时的效果
     states: [
         State {
             name: "placed"
