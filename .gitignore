@@ -1,0 +1,39 @@
+# C++ build files
+*.o
+*.a
+*.so
+*.dylib
+*.dll
+*.exe
+
+# Qt generated files
+moc_*.cpp
+qrc_*.cpp
+ui_*.h
+*.moc
+*.scs
+*.aps
+
+# Build directories
+build/
+debug/
+release/
+bin/
+obj/
+
+# IDE
+.vscode/
+.idea/
+*.pro.user*
+*.pro.user
+.DS_Store
+.qtc_clangd
+
+# Qt Creator
+CMakeLists.txt.user*
+
+# dependencies
+node_modules/
+*.swp
+*.swo
+*~
